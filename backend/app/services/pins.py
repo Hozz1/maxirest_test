@@ -34,9 +34,6 @@ class PinService:
     def list_public_pins(self):
         return self.repository.list_public()
 
-    def search_public_pins(self, query: str):
-        return self.repository.search_public(query)
-
     def get_pin(self, pin_id: UUID):
         pin = self.repository.get_by_id(pin_id)
         if pin is None or not pin.is_public:

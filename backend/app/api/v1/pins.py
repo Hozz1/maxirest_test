@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_storage_service
@@ -41,16 +41,6 @@ def list_pins(
     storage: StorageService = Depends(get_storage_service),
 ) -> list[PinRead]:
     pins = PinService(PinRepository(db), storage).list_public_pins()
-    return [PinRead.model_validate(pin) for pin in pins]
-
-
-@router.get("/search", response_model=list[PinRead])
-def search_pins(
-    q: str = Query(min_length=1),
-    db: Session = Depends(get_db),
-    storage: StorageService = Depends(get_storage_service),
-) -> list[PinRead]:
-    pins = PinService(PinRepository(db), storage).search_public_pins(q)
     return [PinRead.model_validate(pin) for pin in pins]
 
 

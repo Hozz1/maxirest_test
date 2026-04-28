@@ -1,11 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.pin import Pin
-from app.models.pin_tag import PinTag
-from app.models.tag import Tag
 
 
 class PinRepository:
@@ -43,24 +41,3 @@ class PinRepository:
     def get_by_id(self, pin_id: UUID) -> Pin | None:
         stmt = select(Pin).where(Pin.id == pin_id)
         return self.db.scalar(stmt)
-
-    def search_public(self, query: str, limit: int = 50) -> list[Pin]:
-        q = f"%{query}%"
-        stmt = (
-            select(Pin)
-            .outerjoin(PinTag, PinTag.pin_id == Pin.id)
-            .outerjoin(Tag, Tag.id == PinTag.tag_id)
-            .where(
-                Pin.is_public.is_(True),
-                or_(
-                    Pin.title.ilike(q),
-                    Pin.description.ilike(q),
-                    Tag.name.ilike(q),
-                    Tag.slug.ilike(q),
-                ),
-            )
-            .order_by(Pin.created_at.desc())
-            .distinct()
-            .limit(limit)
-        )
-        return list(self.db.scalars(stmt).all())
